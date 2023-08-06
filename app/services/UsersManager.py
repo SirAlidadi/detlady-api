@@ -1,8 +1,9 @@
 
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.models.UsersModel import Users
 from app.schemas.UsersSchema import CreateUserSchema, UpdateUserSchema
+from app.utils.bcrypt import Bcrypt
 
 
 def create(user: CreateUserSchema, db: Session):
@@ -14,9 +15,10 @@ def create(user: CreateUserSchema, db: Session):
         ) 
         
     query = Users()
-    for field in user:
-        setattr(query, field[0], field[1])
-
+    query.first_name = user.first_name
+    query.last_name = user.last_name
+    query.phone = user.phone
+    query.password = Bcrypt.create_bcrypt(user.password)
     query.is_active = False
     query.is_admin = False
     
@@ -29,20 +31,21 @@ def create(user: CreateUserSchema, db: Session):
 
 def list(search: str, db: Session):
     if(search == None):
-        return db.query(Users).all()
+        return db.query(Users).options(joinedload(Users.address)).all()
     
-    return db.query(Users).filter(Users.first_name.contains(search)).all()
+    return db.query(Users).options(joinedload(Users.address)).filter(Users.first_name.contains(search)).all()
+
 
 def get(id: int, db: Session):
-    user = db.get(Users, id)
+    user_exists = db.get(Users, id)
     
-    if(not user):
+    if(not user_exists):
         raise HTTPException(
             detail=f"There is no user with ID {id}",
             status_code=status.HTTP_404_NOT_FOUND
         )
 
-    return user
+    return user_exists
 
 
 def delete(id: int, db: Session):

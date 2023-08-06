@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy.orm import relationship
 from app.config.database import Base
 
 class Users(Base):
@@ -11,3 +12,4 @@ class Users(Base):
     password = Column(String(255))
     is_active = Column(Boolean(), default=False)
     is_admin = Column(Boolean(), default=False)
+    address = relationship("Address", back_populates="users", cascade="all,delete")

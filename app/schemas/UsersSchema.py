@@ -1,6 +1,7 @@
 import re
-from typing import Annotated
+from typing import Annotated, List
 from pydantic import BaseModel, ConfigDict, Field, constr, field_validator
+from app.schemas.AddressSchema import BaseAddressSchema
 
 
 class BaseUserSchema(BaseModel):
@@ -14,7 +15,7 @@ class BaseUserSchema(BaseModel):
         pattern = r'^0?9\d{9}$'
         
         if(not re.match(pattern, digits_only)):
-            raise ValueError('The phone number is not valid.')
+            raise ValueError(f'The ${field} is not valid.')
         
         return digits_only
     
@@ -27,8 +28,16 @@ class CreateUserSchema(BaseUserSchema):
 
 
 class DisplayUserSchema(BaseUserSchema):
+    model_config = ConfigDict(populate_by_name=True)
+    
     id: int
+    address: List[BaseAddressSchema] = Field(alias="addresses")
 
 
 class UpdateUserSchema(BaseUserSchema):
     __annotations__ = { K: Annotated[V, Field(default=None)] for K, V in BaseUserSchema.__annotations__.items() }
+
+
+class AuthUserSchema(BaseUserSchema):
+    is_active: bool
+    is_admin: bool
