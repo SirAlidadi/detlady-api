@@ -23,7 +23,6 @@ router = APIRouter(prefix="/users", tags=["Users"])
 )
 def create_user(request: CreateUserSchema, response: Response, db: Session = Depends(get_db)):
     instance = orm_create_user(request, db)
-
     response.status_code = status.HTTP_201_CREATED
     return instance
 
@@ -32,7 +31,10 @@ def create_user(request: CreateUserSchema, response: Response, db: Session = Dep
     '/',
     response_model=Page[DisplayUserSchema]
 )
-def list_user(search: Annotated[str | None, Optional[Path(min_length=1)]] = None, db: Session = Depends(get_db)):
+def list_user(
+    search: Annotated[str | None, Optional[Path(min_length=1)]] = None,
+    db: Session = Depends(get_db)
+):
     instance = orm_list_user(search, db)
     return paginate(instance)
 
@@ -41,7 +43,10 @@ def list_user(search: Annotated[str | None, Optional[Path(min_length=1)]] = None
     '/{id}',
     response_model=DisplayUserSchema
 )
-def get_user(id: ID_TYPE, db: Session = Depends(get_db)):
+def get_user(
+    id: ID_TYPE,
+    db: Session = Depends(get_db)
+):
     instance = orm_get_user(id, db)
     return instance
 
@@ -50,7 +55,10 @@ def get_user(id: ID_TYPE, db: Session = Depends(get_db)):
     '/delete/{id}',
     response_model=DisplayUserSchema
 )
-def delete_user(id: ID_TYPE, db: Session = Depends(get_db)):
+def delete_user(
+    id: ID_TYPE,
+    db: Session = Depends(get_db)
+):
     return orm_delete_user(id, db)
 
 
@@ -58,5 +66,9 @@ def delete_user(id: ID_TYPE, db: Session = Depends(get_db)):
     '/update/{id}',
     response_model=DisplayUserSchema
 )
-def update_user(request: UpdateUserSchema, id: ID_TYPE, db: Session = Depends(get_db)):
+def update_user(
+    request: UpdateUserSchema,
+    id: ID_TYPE,
+    db: Session = Depends(get_db)
+):
     return orm_update_user(id, request, db)

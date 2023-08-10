@@ -1,10 +1,11 @@
 from datetime import timedelta
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.config.database import get_db
 from app.utils.authenticate import ACCESS_TOKEN_EXPIRE_MINUTES, authenticate_user, create_access_token
+from app.utils.exceptions import login_exception
 
 
 router = APIRouter(tags=["Authenticate"])
@@ -14,21 +15,12 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Sessio
     user = authenticate_user(phone=form_data.username, password=form_data.password, db=db)
     
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect phone or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise login_exception()
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     
     access_token = create_access_token(
-        data={
-            "id": user.id,
-            "phone": user.phone,
-            "is_admin": user.is_admin,
-            "is_active": user.is_active
-        },
+        data={"id": user.id},
         expires_delta=access_token_expires
     )
     

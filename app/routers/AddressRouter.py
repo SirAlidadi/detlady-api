@@ -11,6 +11,7 @@ from app.services.AddressManager import create as orm_create_address,\
 from app.utils.authenticate import current_active_user
 from app.utils.types import ID_TYPE
 
+
 router = APIRouter(prefix='/address', tags=["Address"])
 
 
@@ -48,5 +49,3 @@ def update_address(
     db: Session = Depends(get_db)
 ):
     return orm_update_address(request, id, current_user, db)
-
-
