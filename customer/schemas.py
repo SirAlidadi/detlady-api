@@ -1,8 +1,7 @@
 import re
 from typing import Annotated, List
 from pydantic import BaseModel, ConfigDict, Field, constr, field_validator
-from app.schemas.AddressSchema import BaseAddressSchema
-
+from address.schemas import BaseAddressSchema
 
 class BaseUserSchema(BaseModel):
     first_name: constr(min_length=2, max_length=50)
@@ -41,3 +40,7 @@ class UpdateUserSchema(BaseUserSchema):
 class AuthUserSchema(BaseUserSchema):
     is_active: bool
     is_admin: bool
+
+
+class DeleteUsersSchema(BaseModel):
+    ids: List[int]

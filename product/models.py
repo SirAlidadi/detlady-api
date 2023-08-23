@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import relationship
-from app.config.database import Base
+from core.database import Base
 
 
 class Products(Base):
@@ -20,13 +20,6 @@ class ProductCategories(Base):
     products = relationship("Products", backref="category")
 
 
-product_attribute = Table(
-    'product_attribute', Base.metadata,
-    Column('id', Integer, unique=True, autoincrement=True, index=True, primary_key=True),
-    Column('product_skus_id', Integer, ForeignKey('product_skus.id')),
-    Column('attribute_id', Integer, ForeignKey('attributes.id'))
-)
-
 class ProductSkus(Base):
     __tablename__ = "product_skus"
     
@@ -35,7 +28,7 @@ class ProductSkus(Base):
     quantity = Column(Integer) 
     image = Column(String(255))
     product_id = Column(ForeignKey("products.id"))
-    attributes = relationship("Attributes", secondary=product_attribute, back_populates="skus")
+    attributes = relationship("Attributes", secondary='product_attribute')
 
 
 class Attributes(Base):
@@ -43,4 +36,12 @@ class Attributes(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True, index=True, unique=True)
     value = Column(String(50))
-    skus = relationship("ProductSkus", secondary=product_attribute, back_populates="attributes")
+    skus = relationship(ProductSkus, secondary='product_attribute')
+
+
+class ProductAttributes(Base):
+    __tablename__ = "product_attribute"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True, unique=True)
+    skus_id = Column(Integer, ForeignKey(ProductSkus.id))
+    attribute_id = Column(Integer, ForeignKey(Attributes.id))

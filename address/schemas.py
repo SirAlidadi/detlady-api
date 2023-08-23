@@ -60,3 +60,6 @@ class BaseAddressSchema(BaseModel):
 
 class UpdateAddressSchema(BaseAddressSchema):
     __annotations__ = { K: Annotated[V, Field(default=None)] for K, V in BaseAddressSchema.__annotations__.items() }
+    
+    class Config:  
+        use_enum_values = True

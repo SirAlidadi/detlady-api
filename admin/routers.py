@@ -3,12 +3,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.config.database import get_db
-from app.utils.authenticate import ACCESS_TOKEN_EXPIRE_MINUTES, authenticate_user, create_access_token
-from app.utils.exceptions import login_exception
+from core.database import get_db
+from core.authenticate import ACCESS_TOKEN_EXPIRE_MINUTES, authenticate_user, create_access_token
+from core.exceptions import login_exception
 
 
-router = APIRouter(tags=["Authenticate"])
+router = APIRouter(tags=["Admin"])
 
 @router.post('/login')
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)):

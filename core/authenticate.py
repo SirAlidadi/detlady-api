@@ -1,15 +1,15 @@
 from datetime import datetime, timedelta
 from typing import Annotated
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
-from app.config.database import get_db
-from app.models.UsersModel import Users
-from app.schemas.UsersSchema import AuthUserSchema
-from app.utils.bcrypt import Bcrypt
-from app.services.UsersManager import get as orm_get_user
-from app.utils.exceptions import login_exception
+from .database import get_db
+from customer.models import Users
+from customer.schemas import AuthUserSchema
+from core.bcrypt import Bcrypt
+from customer.managers import user_manager
+from core.exceptions import login_exception
 
 
 SECRET_KEY = "5ad201d0812bf4b355005426162e69896332291e420be45d09b1dd5d266b2685"
@@ -50,7 +50,7 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session 
     except JWTError:
         raise login_exception("حساب کاربری شما توسط سیستم تایید نشد.")
 
-    user = orm_get_user(id, db)
+    user = user_manager.get(id=id, db=db)
     
     if user is None:
         raise login_exception("حساب کاربری شما توسط سیستم تایید نشد.")
@@ -66,5 +66,5 @@ def current_active_user(current_user: Annotated[AuthUserSchema, Depends(get_curr
 
 def current_admin_user(current_user: Annotated[AuthUserSchema, Depends(get_current_user)]):
     if not current_user.is_active or not current_user.is_admin:
-        raise HTTPException(status_code=400, detail="حساب کاربری شما برای مجاز به انجام این عملیات نمی باشد")
+        raise HTTPException(status_code=400, detail="حساب کاربری شما مجاز به انجام این عملیات نمی باشد")
     return current_user
